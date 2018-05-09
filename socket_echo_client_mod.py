@@ -36,6 +36,7 @@ try:
         amount_expected = len(messageBytes)
 
         while amount_received < amount_expected:
+            #TODO: Write code
             data = sock.recv(8)
             amount_received += len(data)
             print('received ', str(data, 'utf-8'))
