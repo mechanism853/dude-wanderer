@@ -51,6 +51,7 @@ while True:
                 d1.x = d1.x - 1
             elif cmd == 'd':
                 d1.x = d1.x + 1
+            #serialize dude and send to client
             print(d1.location())
             connection.sendall(bytearray(d1.location(), 'utf-8'))
             data = connection.recv(buffer_size)
