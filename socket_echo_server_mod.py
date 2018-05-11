@@ -4,6 +4,7 @@ import socket
 import sys
 
 #dude class definition
+#TODO: Define dude in seperate file and import in both server and client. This helps keep any changes in sync if nothing else.
 class dude:
     def __init__(self, *args):
         if len(args) == 1:
@@ -14,11 +15,14 @@ class dude:
             self.c = str(dude_bytes[4:], 'utf-8')
         elif len(args) == 3:
             # case for generating dude from non-serialized dude parts
+            #TODO: Fix these args[#]
             self.x = x_pos
             self.y = y_pos
             self.c = c_type
         else:
             #TODO: THROW TANTRUM
+            #TODO: Actually add something here so it works ;)
+            self = 0
 
     def serialize(self):
         return self.x.to_bytes(2, 'big') + self.y.to_bytes(2, 'big') + bytearray(self.c, 'utf-8')
@@ -27,8 +31,10 @@ class dude:
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 #bind socket to port
+#TODO: Make the port to bind to setable by command line argument
 server_address = ('localhost', 10000)
 print('starting up server on {} on {}'.format(*server_address))
+#TODO: Verify bind success
 sock.bind(server_address)
 
 #set to listen for 1 incoming connection at a time
@@ -44,6 +50,7 @@ while True:
         #get dude definition from client
         d1_bytes = connection.recv(5)
         print('Received serialized dude: ', d1_bytes)
+        #TODO: validate user data
         d1 = dude(d1_bytes)
         print('Deserialized dude, c: {}, x: {}, y: {}'.format(d1.c, d1.x, d1.y))
 
@@ -55,6 +62,8 @@ while True:
         cmd_bytes = connection.recv(buffer_size)
         while cmd_bytes:
             #modify dude
+            #TODO: Set limits to not allow dude to wander off the grid
+            #TODO: Have a default/command not recognized option, separate from an exit command
             cmd = str(cmd_bytes, 'utf-8')
             if cmd == 'w':
                 print(d1.y)
@@ -73,7 +82,7 @@ while True:
             cmd_bytes = connection.recv(buffer_size)
 
         print('Session from {} ended.'.format(client_address))
-
+#TODO: Handle ctrl-c (^C) and exit cleanly
     finally:
         #clean up the connection
         connection.close()
