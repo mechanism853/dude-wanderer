@@ -3,7 +3,6 @@
 import socket
 import sys
 from dude import dude
-#dude class definition
 
 #TODO: Create a main function and encapsulate all of this into it. Call main at the end of this file.
 #create a tcp/ip socket
