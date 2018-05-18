@@ -27,11 +27,11 @@ while True:
         d1_bytes = connection.recv(5)
         print('Received serialized dude: ', d1_bytes)
         #TODO: validate user data
-        d1 = dude(d1_bytes)
+        d1 = dude.deserialize(d1_bytes)
         print('Deserialized dude, c: {}, x: {}, y: {}'.format(d1.c, d1.x, d1.y))
 
         #send back initial dude status
-        connection.sendall(d1.serialize())
+        connection.sendall(dude.serialize(d1))
 
         #wait to receive command (one byte (w, s, a, d))
         buffer_size = 1
@@ -43,16 +43,16 @@ while True:
             cmd = str(cmd_bytes, 'utf-8')
             if cmd == 'w':
                 print(d1.y)
-                d1.y = d1.y - 1
+                d1.move_north()
             elif cmd == 's':
-                d1.y = d1.y + 1
+                d1.move_south()
             elif cmd == 'a':
-                d1.x = d1.x - 1
+                d1.move_west()
             elif cmd == 'd':
-                d1.x = d1.x + 1
+                d1.move_east()
 
             #serialize dudes and send to client
-            connection.sendall(d1.serialize())
+            connection.sendall(dude.serialize(d1))
 
             #wait to receive command
             cmd_bytes = connection.recv(buffer_size)
