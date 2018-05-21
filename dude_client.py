@@ -1,4 +1,4 @@
-#socket_echo_client_mod.py
+#!/usr/bin/python3
 
 import socket
 import sys
@@ -14,11 +14,9 @@ def dude_builder_prompts():
 
     print("\033[H\033[J")
     while True:
-        c_input = input('What does your dude look like? (one ascii character): ')
+        c_input = input('\033[H\033[JWhat does your dude look like? (one ascii character): ')
         if len(c_input) == 1:
             break
-        else:
-            print("\033[H\033[J  !!!Please, only a single ascii character!!!")
 
     print("\033[H\033[J")
     while True:
@@ -76,22 +74,45 @@ def receive_and_display_status(sock):
 ##
 #
 ##
-def setup_socket():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #connect the socket to the port where the server is listening
-    #TODO: Make the server and port setable by command line arguments.
-    server_address = ('localhost', 10000)
-    print('connecting to {} port {}'.format(*server_address))
-    #TODO: Verify your socket connection is valid before using it.
-    sock.connect(server_address)
-    return sock
+def setup_socket(host, port):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #connect the socket to the port where the server is listening
+        server_address = (host, port)
+        print('Connecting to server at {}, {}'.format(*server_address))
+        #TODO: Verify your socket connection is valid before using it.
+        sock.connect(server_address)
+        return sock
+    except Exception:
+        print("Error! Could not connect to server at {}, {}".format(host, port))
+
+##
+#
+##
+def print_usage():
+    print("Usage: ./dude_client.py [HOST] [PRINT]")
+
+##
+#
+##
+def parse_args(argv):
+    try:
+        host = socket.inet_aton(argv[1])
+        port = int(argv[2])
+        return (host, port)
+    except Exception:
+        print_usage()
+        sys.exit(2)
 
 ##
 # main
 ##
-def main():
+def main(argv):
+    #parse cmd line
+    (host, port) = parse_args(argv)
+
     #create a tcp/ip socket
-    sock = setup_socket()
+    sock = setup_socket(host, port)
 
     try:
         #get your dude
@@ -110,4 +131,4 @@ def main():
         sock.sendall(bytearray('x', 'utf-8'))
         sock.close()
 
-main()
+main(sys.argv)
