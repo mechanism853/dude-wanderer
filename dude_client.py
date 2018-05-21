@@ -7,7 +7,7 @@ from dude import dude
 ##
 #
 ##
-def dude_builder():
+def dude_builder_prompts():
     #TODO: Validate user input
     c_input = input('What does your dude look like? (one ascii character): ')
     print('Where does your dude start?')
@@ -34,7 +34,7 @@ def main():
  
     try:
         #get your dude
-        d = dude_builder()
+        d = dude_builder_prompts()
         #send dude to server
         print('Sending your dude to the dude-wanderer server')
         sock.sendall(dude.serialize(d))

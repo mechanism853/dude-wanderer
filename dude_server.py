@@ -42,7 +42,6 @@ while True:
             #TODO: Have a default/command not recognized option, separate from an exit command
             cmd = str(cmd_bytes, 'utf-8')
             if cmd == 'w':
-                print(d1.y)
                 d1.move_north()
             elif cmd == 's':
                 d1.move_south()
