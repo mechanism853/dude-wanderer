@@ -2,7 +2,7 @@
 
 import socket
 import sys
-from dude import dude
+from shared.dude import dude
 
 def print_usage():
     print("Usage: /dude_server.py [PORT]")

@@ -2,7 +2,7 @@
 
 import socket
 import sys
-from dude import dude
+from shared.dude import dude
 
 ##
 #
