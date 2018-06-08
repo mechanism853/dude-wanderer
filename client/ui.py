@@ -1,6 +1,6 @@
 import curses
 
-class Display:
+class UI:
     
     @staticmethod
     def safe_char_at(win, y, x, c):
