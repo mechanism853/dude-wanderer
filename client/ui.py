@@ -2,15 +2,25 @@ import curses
 import _curses
 
 class UI:
-    
-    @classmethod
-    def safe_char_at(cls, win, y, x, c):
-        if y >= 0 and x >= 0:
-            Y,X = win.getmaxyx()
-            if y < Y and x < X:
+
+    def __init__(self):
+        self.win = None
+        self.Y = 0
+        self.X = 0
+
+    ##
+    # Attempts to a replace character in the window at given coordinates
+    #
+    # @param y
+    # @param x
+    # @param c
+    # @return A boolean reporting whether the replacement was successful
+    ##
+    def safe_char_at(self, y, x, c) -> bool:
+        if y >= 0 and y <= self.Y:
+            if x >= 0 and x <= self.X:
                 try:
-                    win.addch(y, x, c)
-                    #win.mv(1, 1)
+                    self.win.addch(y, x, c)
                 except _curses.error as e:
                     return False
                 return True
@@ -19,97 +29,95 @@ class UI:
         else:
             return False
 
-    @classmethod
-    def safe_string_at(cls, win, y, x, s):
+    def safe_string_at(self, y, x, s):
         for i in range(len(s)):
-            cls.safe_char_at(win, y, x+i, s[i])
+            if not self.safe_char_at(y, x+i, s[i]):
+                break
         
-    @classmethod
-    def print_horizontal_line(cls, win, y, x1, x2, c):
+    def print_horizontal_line(self, y, x1, x2, c):
         for x in range(x1, x2+1):
-            if not cls.safe_char_at(win, y, x, c):
+            if not self.safe_char_at(y, x, c):
                 break
         
-    @classmethod
-    def print_vertical_line(cls, win, y1, y2, x, c):
+    def print_vertical_line(self, y1, y2, x, c):
         for y in range(y1, y2+1):
-            if not cls.safe_char_at(win, y, x, c):
+            if not self.safe_char_at(y, x, c):
                 break
 
-    @classmethod
-    def print_frames(cls, win):
-        Y,X = win.getmaxyx()
-        Y -= 1
-        X -= 1
+    def update_YX(self):
+        self.Y, self.X = self.win.getmaxyx()
+        self.Y -= 1
+        self.X -= 1
 
-        cls.print_horizontal_line(win, 0, 0, X, '═')
-        cls.print_horizontal_line(win, Y-4, 0, X, '═')
-        cls.print_horizontal_line(win, Y, 0, X, '═')
+    def print_frames(self):
 
-        cls.print_vertical_line(win, 0, Y, 0, '║')
-        cls.print_vertical_line(win, 0, Y, X, '║')
-        cls.print_vertical_line(win, Y-4, Y, X//3, '║')
-        cls.print_vertical_line(win, Y-4, Y, 2*X//3, '║')
+        # border lines        
+        self.print_horizontal_line(        0, 0, self.X, '═')
+        self.print_horizontal_line( self.Y-4, 0, self.X, '═')
+        self.print_horizontal_line(   self.Y, 0, self.X, '═')
 
-        cls.safe_char_at(win, 0, 0, '╔')
-        cls.safe_char_at(win, 0, X, '╗')
-        cls.safe_char_at(win, Y, 0, '╚')
-        cls.safe_char_at(win, Y, X, '╝')
-        cls.safe_char_at(win, Y-4, 0, '╠')
-        cls.safe_char_at(win, Y-4, X, '╣')
-        cls.safe_char_at(win, Y-4, X//3, '╦')
-        cls.safe_char_at(win, Y-4, 2*X//3, '╦')
-        cls.safe_char_at(win, Y, X//3, '╩')
-        cls.safe_char_at(win, Y, 2*X//3, '╩')
+        self.print_vertical_line(        0, self.Y,           0, '║')
+        self.print_vertical_line(        0, self.Y,      self.X, '║')
+        self.print_vertical_line( self.Y-4, self.Y,   self.X//3, '║')
+        self.print_vertical_line( self.Y-4, self.Y, 2*self.X//3, '║')
 
-        cls.safe_string_at(win, Y-4, 2, "STATUS")
-        cls.safe_string_at(win, Y-4, (X//3)+2, "TOOLS")
-        cls.safe_string_at(win, Y-4, (2*X//3)+2, "DETECT")
+        # corner pieces
+        self.safe_char_at(        0,           0, '╔')
+        self.safe_char_at(        0,      self.X, '╗')
+        self.safe_char_at(   self.Y,           0, '╚')
+        self.safe_char_at(   self.Y,      self.X, '╝')
+        self.safe_char_at( self.Y-4,           0, '╠')
+        self.safe_char_at( self.Y-4,      self.X, '╣')
+        self.safe_char_at( self.Y-4,   self.X//3, '╦')
+        self.safe_char_at( self.Y-4, 2*self.X//3, '╦')
+        self.safe_char_at(   self.Y,   self.X//3, '╩')
+        self.safe_char_at(   self.Y, 2*self.X//3, '╩')
+        
+        # labels
+        self.safe_string_at(        0,               2, "DUDE WANDERER")
+        self.safe_string_at( self.Y-4,               2,        "STATUS")
+        self.safe_string_at( self.Y-4,   (self.X//3)+2,         "TOOLS")
+        self.safe_string_at( self.Y-4, (2*self.X//3)+2,        "DETECT")
 
-    @classmethod
-    def main(cls,stdscr):
-        # Clear screen
-        stdscr.clear()
-        y = 0
-        x = 0
-        c = 'X'
-         
-        # Initialize          
+    def main(self,stdscr):
+        # Initialize
         curses.curs_set(0)
-        stdscr.clear()
-        cls.print_frames(stdscr)
+
+        self.win = stdscr
+        self.win.clear()
+        self.update_YX()
+        self.print_frames()
+
+        # Vestigial
+        y = 1
+        x = 1
+        c = '%'
 
         while True:
-       
- 
-            MAX_Y, MAX_X = stdscr.getmaxyx()
-
-            try:
-                stdscr.addch(y, x, c)
-            except _curses.error as e:
-                pass
+            self.safe_char_at(y, x, c)
             stdscr.refresh()
             key = stdscr.getkey()
             if key == 'KEY_UP':
-                y = (y - 1) % MAX_Y
+                y = (y - 1) % self.Y
             elif key == 'KEY_DOWN':
-                y = (y + 1) % MAX_Y
+                y = (y + 1) % self.Y
             elif key == 'KEY_LEFT':
-                x = (x - 1) % MAX_X
+                x = (x - 1) % self.X
             elif key == 'KEY_RIGHT':
-                x = (x + 1) % MAX_X
+                x = (x + 1) % self.X
             elif key == 'KEY_RESIZE':
-                stdscr.clear()
-                cls.print_frames(stdscr)
+                self.update_YX()                
+                self.win.clear()
+                self.print_frames()
             elif key == '^[':
                 break
             elif len(key) == 1:
                 c = key
 
-    @classmethod
-    def start(cls):
-        # put in a thread?
-        curses.wrapper(cls.main)
+    def start(self):
+        # put inside a thread?
+        curses.wrapper(self.main)
 
-UI.start()
+my_ui = UI()
+my_ui.start()
 
